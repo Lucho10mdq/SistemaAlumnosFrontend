@@ -22,10 +22,10 @@
                             <th>Nombre</th>
                             <th>Promedio</th>
                         </tr>
-                        <tr v-for="item in lista" v-bind:style="item.estado==false?'color:red':''" :key="item.id">
+                        <tr v-for="item in lista" :style="item.estado==false?'color:red':''" :key="item.id">
                             <td v-text="item.nombre"></td>
                             <td v-text="item.promedio"></td>
-                            <td><input type="button" value="Eliminar " class="btn btn-danger" v-on:click="listar"></td>
+                            <td><input type="button" value="Eliminar"  class="btn btn-danger" @click="borrar(item.id)"></td>
                         </tr>
                     </table>
                 </div>
@@ -51,17 +51,28 @@ export default {
             ],
             nombre: '', //en estas variables se van a usar para guardar el dato q viene desde los text
             promedio: '',
+            id:'',
+            estadoA:false
             
     }
   },
   methods:{
      listar() {
-                //estadoA = false;
+                
                 axios.get('http://localhost:8000/api/apiJson').then((response) => {
                     this.lista = response.data;
                     this.$toasted.success("Listado Completo", {
                         duration: 2000,
                         position: 'top-right'
+                    });
+                    this.lista.forEach(function(element){
+                        if(element.promedio>12.5){
+                            console.log("hola");
+                            //console.log(this.estadoA);
+                            console.log(element.promedio);
+                           this.estadoA=true;
+                           console.log(this.estadoA);
+                        }
                     });
                 })
                 if (this.lista == '') {
@@ -72,10 +83,7 @@ export default {
                 }
             },
              agregarNota: function() {
-               const estadoA = false;
-                if (this.promedio >= 12.5) {
-                  const estadoA = true;
-                }
+               
                 if (this.nombre != '' && this.promedio != '') {
                     const nombreAux = this.nombre;
                     const promedioAux = this.promedio;
@@ -100,6 +108,15 @@ export default {
                        // icon: 'check'
                     });
                 }
+            },
+            borrar:function(id){
+                axios.delete('http://localhost:8000/api/eliminarAlumno/'+id);
+                    this.$toasted.success("Se borro correctamente", {
+                        duration: 2000,
+                        position: 'top-center'
+                       // icon: 'check'
+                    });
+                    this.listar();
             }
   }
 
